@@ -1,6 +1,6 @@
-const BLOG_DOMAIN = 'monomania.sblo.jp';
+const BLOG_DOMAIN = process.env.NEXT_PUBLIC_BLOG_DOMAIN ?? '';
 
-// ブログ（monomania.sblo.jp）内を型番で検索
+// ブログ内を型番で検索
 // ハイフンあり/なし両方で検索し重複を除去（記事内の表記ゆれに対応）
 export async function searchBlogUrls(
   modelNumber: string,

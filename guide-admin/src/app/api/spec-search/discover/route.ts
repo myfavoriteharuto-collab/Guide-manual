@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       .eq('product_id', productId);
 
     if (cached && cached.length > 0) {
-      // キャッシュヒット時もmonomaniaは毎回再検索する
+      // キャッシュヒット時もブログは毎回再検索する
       // 比較記事は後から追加される可能性があるため、キャッシュに依存しない
       const freshBlog = await searchBlogUrls(modelNumber.trim(), 3).catch(() => []);
       const cachedUrls = new Set(cached.map(c => c.url));
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
         .filter(c => !cachedUrls.has(c.url))
         .map(c => ({ url: c.url, title: c.title, snippet: c.snippet, selected: true }));
 
-      // 新しいmonomania URLはDBにも追加して次回以降キャッシュに含める
+      // 新しいブログURLはDBにも追加して次回以降キャッシュに含める
       if (newBlogCandidates.length > 0) {
         await supabase.from('url_candidates').upsert(
           newBlogCandidates.map(c => ({ product_id: productId, ...c }))

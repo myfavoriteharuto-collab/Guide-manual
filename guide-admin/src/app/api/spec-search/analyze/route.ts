@@ -8,7 +8,7 @@ import { getMakerFromUrl } from '@/lib/allowedDomains';
 import type { Category } from '@/types/product';
 
 // ── ブログURL判定 ────────────────────────────────────────────
-const BLOG_DOMAINS = ['monomania.sblo.jp'];
+const BLOG_DOMAINS = (process.env.NEXT_PUBLIC_BLOG_DOMAIN ?? '').split(',').filter(Boolean);
 function isBlogUrl(url: string): boolean {
   try { return BLOG_DOMAINS.some(d => new URL(url).hostname === d); }
   catch { return false; }
