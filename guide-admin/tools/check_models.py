@@ -1,6 +1,6 @@
 import requests
 
-API_KEY = "AIzaSyAHU3sR9V-K6D17ThAiVdBOlLhsxqTTGRY" # 自分のキーに書き換えてください
+API_KEY = "YOUR_GEMINI_API_KEY"  # Google Cloud Console で取得したキーを設定してください
 
 def check_models():
     # v1betaを使って、現在使える全てのモデルを取得します
