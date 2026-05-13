@@ -5,7 +5,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-Deploy-black?logo=vercel&logoColor=white)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)
 
 ## Overview
 
@@ -173,4 +173,4 @@ npm run dev   # http://localhost:3001
 
 ## License
 
-MIT © 2025 — see [LICENSE](LICENSE)
+© 2026 Haruto Miyakawa — All Rights Reserved.
