@@ -1,108 +1,176 @@
-# Guide App — 家電接客サポートツール
+# Guide App
 
-家電量販店のスタッフが接客中にタブレットで使える、商品案内・比較・ウィザードアプリです。
-管理者がAIで商品情報を自動登録し、スタッフアプリに反映されます。
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-Deploy-black?logo=vercel&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+## Overview
+
+家電スタッフがタブレットで使える商品案内・比較サポートアプリ。
+管理者が型番を入力するだけで AI が商品情報を自動抽出し、スタッフアプリにリアルタイム反映されます。
+
+<!-- TODO: スクリーンショット追加 -->
 
 ---
 
-## 構成
+## Features
 
+| | 機能 | 説明 |
+|---|---|---|
+| ✅ | AI 商品自動登録 | URL を入力するだけでスペック・販売トークを自動抽出 |
+| ✅ | 横並び比較ビュー | 複数商品をカード形式で比較、差別化ポイントを表示 |
+| ✅ | おすすめウィザード | お客様の条件をステップ形式でヒアリングして商品を提案 |
+| ✅ | バッチ登録 | 複数商品を一括キューで順次処理 |
+| ✅ | 色展開取得 | table / dl / img alt など複数戦略でカラーバリエーションを自動取得 |
+| ✅ | PWA 対応 | iPad ホーム画面追加でアプリライクに動作 |
+| ✅ | AI プロバイダー切り替え | Gemini / Ollama をenv 変数 1 つで切り替え |
+| 🔲 | オフラインキャッシュ | Service Worker でキャッシュ、圏外でも閲覧可能 |
+| 🔲 | ダッシュボード統計 | カテゴリ別登録数・更新履歴のサマリー表示 |
+
+---
+
+## Tech Stack
+
+| Category | Technology | Reason |
+|---|---|---|
+| Frontend | Next.js 16 / TypeScript | App Router + RSC で高速レンダリング |
+| Styling | Tailwind CSS v4 | ユーティリティファーストで迅速な UI 構築 |
+| Backend / DB | Supabase (PostgreSQL + RLS) | 認証・リアルタイム同期・ストレージを一元管理 |
+| AI Extraction | Gemini 2.5 Flash | 高精度なスペック抽出と販売トーク生成 |
+| Local AI | Ollama (Gemma 等) | コスト削減・オフライン推論のフォールバック |
+| URL Discovery | Serper.dev API | メーカー公式ページの自動探索 |
+| QR Code | qrcode.react | スタッフ間の商品リンク共有 |
+| Deploy | Vercel | push で自動デプロイ・Preview URL 付き |
+
+---
+
+## Architecture
+
+```mermaid
+graph LR
+    subgraph Admin["guide-admin (port 3001)"]
+        A1[型番入力]
+        A2[URL 自動探索]
+        A3[AI スペック抽出]
+        A4[商品データ保存]
+    end
+
+    subgraph App["guide-app (port 3000)"]
+        B1[商品一覧・詳細]
+        B2[比較ビュー]
+        B3[おすすめウィザード]
+    end
+
+    Manager[管理者] --> A1
+    A1 --> A2
+    A2 -->|Google CSE| Internet[(Web)]
+    A2 --> A3
+    A3 -->|Gemini / Ollama| A4
+    A4 -->|Supabase PostgreSQL| DB[(DB)]
+    DB --> B1
+    DB --> B2
+    DB --> B3
+    B3 --> Staff[スタッフ 📱]
+    B1 --> Staff
+    B2 --> Staff
 ```
-Guide-manual/
-├── guide-app/    # スタッフ向けアプリ (Next.js, port 3000)
-└── guide-admin/  # 管理者向けアプリ (Next.js, port 3001)
-```
 
 ---
 
-## 技術スタック
+## Getting Started
 
-| レイヤー | 技術 |
-|---|---|
-| フロントエンド | Next.js 16 / TypeScript / Tailwind CSS v4 |
-| バックエンド/DB | Supabase (PostgreSQL + Auth + Storage) |
-| AI解析 | Gemini 2.5 Flash |
-| URL探索 | Google Custom Search API |
-| デプロイ | Vercel |
+### Prerequisites
 
----
+- Node.js 18+
+- [Supabase](https://supabase.com) project (free tier 可)
+- Gemini API key ([Google AI Studio](https://aistudio.google.com))
+- Serper.dev API key ([serper.dev](https://serper.dev))
 
-## 主な機能
-
-### guide-app（スタッフアプリ）
-- **商品一覧・詳細表示** — スペック・接客トーク・用語解説をまとめて確認
-- **比較画面** — 複数商品をカード形式で横並び比較、他モデルとの比較ポイントを表示
-- **おすすめウィザード** — お客様の条件に合った商品をステップ形式で提案
-- **お気に入り** — localStorage で端末内に保存
-- **PWA対応** — ホーム画面追加でアプリライクに使用可能
-
-### guide-admin（管理者アプリ）
-- **AI商品登録** — メーカー公式URLを入力するだけでスペック・接客トークをAI自動抽出
-- **色展開取得** — table / dl / カラーUIコンテナ / img alt など複数戦略でカラーバリエーションを抽出
-- **ブログ検索** — 型番で家電レビューブログ記事を自動検索し、接客トークの参考情報として活用
-- **比較データ管理** — 旧モデル・競合モデルとの比較ポイントをDB管理
-- **ユーザー管理** — マジックリンクで管理者を招待
-
----
-
-## セットアップ
-
-### 必要なもの
-- Node.js 18以上
-- Supabase プロジェクト
-- Gemini API キー
-- Google Custom Search API キー
-
-### guide-app
+### guide-app — Staff App
 
 ```bash
 cd guide-app
 npm install
 ```
 
-`.env.local` を作成：
-```
+`.env.local` を作成:
+
+```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ```bash
-npm run dev  # http://localhost:3000
+npm run dev   # http://localhost:3000
 ```
 
-### guide-admin
+### guide-admin — Admin App
 
 ```bash
 cd guide-admin
 npm install
 ```
 
-`.env.local` を作成：
-```
+`.env.local` を作成:
+
+```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 GEMINI_API_KEY=your_gemini_api_key
-GOOGLE_CUSTOM_SEARCH_API_KEY=your_cse_api_key
-GOOGLE_CUSTOM_SEARCH_CX=your_cse_cx
+SERPER_API_KEY=your_serper_api_key
 NEXT_PUBLIC_SUPER_ADMIN_EMAIL=your_admin_email
+
+# Optional: AI provider (default: gemini)
+# AI_PROVIDER=ollama
+# OLLAMA_BASE_URL=http://localhost:11434/v1
+# OLLAMA_MODEL=gemma4:e4b
 ```
 
 ```bash
-npm run dev  # http://localhost:3001
+npm run dev   # http://localhost:3001
 ```
 
----
+### Supabase Tables
 
-## Supabase テーブル構成
-
-主要テーブル：`products` / `categories` / `product_specs` / `product_comparisons` / `wizard_scores` / `url_candidates`
+主要テーブル: `products` / `categories` / `product_specs` / `product_comparisons` / `wizard_scores` / `url_candidates`
 
 詳細は [`docs/guide-admin-guide.md`](docs/guide-admin-guide.md) を参照してください。
 
 ---
 
-## ドキュメント
+## Implementation Notes
 
-- [スタッフアプリ 使い方ガイド](docs/guide-app-guide.md)
-- [管理者アプリ 使い方ガイド](docs/guide-admin-guide.md)
+- **スペック抽出パイプライン**
+  HTML 取得 → スクリプト/スタイル除去 → テキスト化 → AI プロンプト → JSON パース の多段処理。メーカーによっては公式 JSON spec API が存在するため、そちらを優先利用（例: 日立 kadenfan spec API）。
+
+- **RLS によるアクセス制御**
+  Supabase の Row Level Security で管理者のみ書き込み可能。スタッフアプリは anon key で読み取り専用。サービスロールキーはサーバーサイド API Route のみで使用。
+
+- **AI プロバイダー抽象化**
+  `ai-client.ts` で Gemini / Ollama を統一インターフェースに集約。環境変数 `AI_PROVIDER` 1 つで切り替え可能。ローカル環境ではコスト 0 で動作確認が可能。
+
+- **色展開の多段フォールバック**
+  table / dl / カラー UI コンテナ / img alt / カラーコードパターン の順に検索。メーカーごとの DOM 差異を吸収する。
+
+- **比較データの双方向マッチング**
+  `product_comparisons` テーブルで型番を正規化し、A→B / B→A の双方向で自動取得。
+
+---
+
+## Roadmap
+
+- [ ] ダッシュボード — カテゴリ別登録数・更新履歴の統計表示
+- [ ] オフライン対応 — Service Worker によるキャッシュ、圏外でも商品一覧を閲覧可能に
+- [ ] 初回ガイドフロー — 新規ユーザー向けオンボーディング UI
+- [ ] 機能説明画像 — 各機能ページにスクリーンショット・図解を追加
+- [ ] ウィザードのスコアリング精度向上 — 条件ヒアリングロジックの改善
+
+---
+
+## License
+
+MIT © 2025 — see [LICENSE](LICENSE)
